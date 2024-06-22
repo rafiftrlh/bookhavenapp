@@ -1,0 +1,38 @@
+name: bookhavenapp
+description: "A new Flutter project."
+publish_to: "none"
+version: 0.1.0
+
+environment:
+  sdk: ">=3.2.4 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  carousel_slider: ^4.2.1
+  google_fonts: ^4.0.4
+  cupertino_icons: ^1.0.2
+  flutter_native_splash: ^2.3.11
+  flutter_rating_bar: ^4.0.1
+  readmore: ^2.2.0
+  sqflite: ^2.0.0
+  geolocator: ^11.1.0
+  http: ^0.13.4
+  provider: ^5.0.0
+  shared_preferences: ^2.0.11
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/JUANDARA.jpg
+    - assets/arrow.png
+    - assets/images/Group.png
+    - assets/images/Vector.png
+    - assets/images/1.png
+    - assets/images/Vector 2.png
+    - assets/images/profile.jpg
