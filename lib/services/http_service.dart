@@ -14,7 +14,7 @@ import 'package:bookhavenapp/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpService {
-  static const String baseUrl = 'http://localhost:8000'; // Ganti dengan base URL API Anda
+  static const String baseUrl = 'http://localhost:8000';
 
   Future<void> login({
     required BuildContext context,
@@ -98,14 +98,31 @@ class HttpService {
     }
   }
 
-  Future<List<BookDetail>> fetchBookDetail(int id) async {
+  Future<BookDetail> fetchBookDetail(int id) async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/api/books/$id'));
 
       if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        final List<dynamic> bookDetailJson = data['books'];
-        return bookDetailJson.map((json) => BookDetail.fromJson(json)).toList();
+        final responseBody = response.body;
+        // print('Raw response body: $responseBody'); // Debug print
+
+        final data = json.decode(responseBody);
+        if (data == null) {
+          throw Exception('Failed to decode JSON response.');
+        }
+
+        // Print the formatted JSON response
+        // print('Response data: ${JsonEncoder.withIndent('  ').convert(data)}');
+
+        if (data.containsKey('book')) {
+          final bookDetailJson = data['book'];
+          // Print the formatted book detail JSON
+          // print(
+          //     'Book detail JSON: ${JsonEncoder.withIndent('  ').convert(bookDetailJson)}');
+          return BookDetail.fromJson(bookDetailJson);
+        } else {
+          throw Exception('Key "book" not found in the response.');
+        }
       } else {
         throw Exception(
             'Failed to load book details. Status code: ${response.statusCode}');
@@ -159,7 +176,8 @@ class HttpService {
         List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => RatingBookModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load ratings. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load ratings. Status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load ratings. Error: $e');
@@ -168,13 +186,15 @@ class HttpService {
 
   Future<List<NotificationModel>> fetchNotifications(int id) async {
     try {
-      final response = await http.get(Uri.parse('$baseUrl/api/notification/$id'));
+      final response =
+          await http.get(Uri.parse('$baseUrl/api/notification/$id'));
 
       if (response.statusCode == 200) {
         List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => NotificationModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load notifications. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load notifications. Status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load notifications. Error: $e');
@@ -189,10 +209,61 @@ class HttpService {
         List<dynamic> data = jsonDecode(response.body);
         return data.map((json) => BorrowingModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to load borrowings. Status code: ${response.statusCode}');
+        throw Exception(
+            'Failed to load borrowings. Status code: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Failed to load borrowings. Error: $e');
+    }
+  }
+
+  Future<void> borrowBook({
+    required BuildContext context,
+    required int userId,
+    required int bookId,
+  }) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/borrowings'),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+        body: jsonEncode(<String, dynamic>{
+          'user_id': userId.toString(),
+          'book_id': bookId.toString(),
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        final Map<String, dynamic> data = json.decode(response.body);
+
+        if (data.containsKey('status') && data['status'] == 'success') {
+          // Handle success case
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(data['message'])),
+          );
+          // Perform any other actions after successful borrowing
+        } else {
+          // Handle other status scenarios
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+                content: Text('Borrow request failed: ${data['message']}')),
+          );
+        }
+      } else {
+        // Handle HTTP error scenarios
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+              content: Text(
+                  'Borrow request failed with status code ${response.statusCode}')),
+        );
+      }
+    } catch (e) {
+      // Handle general error scenarios
+      print('Error during borrowing request: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('An error occurred during borrowing request')),
+      );
     }
   }
 }

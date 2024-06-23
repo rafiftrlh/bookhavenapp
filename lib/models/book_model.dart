@@ -7,6 +7,7 @@ class Book {
   final String language;
   final int stock;
   final int price;
+  final double total_rating;
 
   Book({
     required this.id,
@@ -17,6 +18,7 @@ class Book {
     required this.language,
     required this.stock,
     required this.price,
+    required this.total_rating,
   });
 
   factory Book.fromJson(Map<String, dynamic> json) {
@@ -29,6 +31,7 @@ class Book {
       language: json['language'],
       stock: json['stock'],
       price: json['price'],
+      total_rating: json['total_rating'],
     );
   }
 }

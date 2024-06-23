@@ -1,3 +1,6 @@
+import 'package:bookhavenapp/models/author_model.dart';
+import 'package:bookhavenapp/models/category_model.dart';
+
 class BookDetail {
   final int id;
   final String bookCode;
@@ -7,6 +10,9 @@ class BookDetail {
   final String language;
   final int stock;
   final int price;
+  final List<Author> authors;
+  final List<CategoryModel> categories;
+  final double total_rating;
 
   BookDetail({
     required this.id,
@@ -17,6 +23,9 @@ class BookDetail {
     required this.language,
     required this.stock,
     required this.price,
+    required this.authors,
+    required this.categories,
+    required this.total_rating,
   });
 
   factory BookDetail.fromJson(Map<String, dynamic> json) {
@@ -29,6 +38,13 @@ class BookDetail {
       language: json['language'],
       stock: json['stock'],
       price: json['price'],
+      authors: (json['authors'] as List<dynamic>?)
+          ?.map((authorJson) => Author.fromJson(authorJson))
+          .toList() ?? [],
+      categories: (json['categories'] as List<dynamic>?)
+          ?.map((authorJson) => CategoryModel.fromJson(authorJson))
+          .toList() ?? [],
+      total_rating: json['total_rating'],
     );
   }
 }
