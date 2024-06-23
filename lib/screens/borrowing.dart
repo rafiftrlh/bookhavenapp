@@ -1,9 +1,75 @@
+import 'package:bookhavenapp/models/borrowing_model.dart';
 import 'package:bookhavenapp/screens/homepage.dart';
 import 'package:bookhavenapp/screens/notification.dart';
+import 'package:bookhavenapp/services/http_service.dart';
 import 'package:flutter/material.dart';
 
-class Borrowing extends StatelessWidget {
+class Borrowing extends StatefulWidget {
   const Borrowing({Key? key}) : super(key: key);
+
+  @override
+  State<Borrowing> createState() => _BorrowingState();
+}
+
+class _BorrowingState extends State<Borrowing> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<BorrowingModel> _borrowings = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBorrowings(); // Perbaikan: Panggil method _fetchBorrowings dengan tanda kurung
+  }
+
+  Future<void> _fetchBorrowings() async {
+    try {
+      final httpService = HttpService();
+      final borrowings = await httpService.fetchBorrowings(); // Perbaikan: Simpan hasil dari fetchBorrowings ke dalam borrowings
+      setState(() {
+        _borrowings = borrowings; // Perbaikan: Simpan data yang diterima ke dalam _borrowings
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat borrowing. Kesalahan: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      key: _scaffoldKey,
+      appBar: AppBar(
+        title: Text('Borrowings'),
+      ),
+      body: _isLoading
+          ? Center(child: CircularProgressIndicator())
+          : _errorMessage.isNotEmpty
+              ? Center(child: Text(_errorMessage))
+              : _buildBorrowingsList(),
+    );
+  }
+
+  Widget _buildBorrowingsList() {
+    return ListView.builder(
+      itemCount: _borrowings.length,
+      itemBuilder: (context, index) {
+        BorrowingModel borrowing = _borrowings[index];
+        return ListTile(
+          title: Text('Book ID: ${borrowing.bookId}'),
+          subtitle: Text('Borrowed by User ID: ${borrowing.userId}'),
+          // Customize how you want to display other details
+        );
+      },
+    );
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -178,7 +244,7 @@ class Borrowing extends StatelessWidget {
       ),
     );
   }
-}
+  
 
 final borrowedBooks = [
   {

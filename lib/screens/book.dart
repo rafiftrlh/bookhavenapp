@@ -1,5 +1,6 @@
 import 'package:bookhavenapp/models/book_model.dart';
 import 'package:bookhavenapp/models/category_model.dart';
+import 'package:bookhavenapp/screens/review.dart';
 import 'package:bookhavenapp/services/http_service.dart';
 import 'package:flutter/material.dart';
 
@@ -13,33 +14,33 @@ class BookKatalog extends StatefulWidget {
   _BookKatalogState createState() => _BookKatalogState();
 }
 
-class _BookKatalogState extends State<BookKatalog> {
-  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
-  List<Book> _books = [];
-  bool _isLoading = true;
-  String _errorMessage = '';
+  class _BookKatalogState extends State<BookKatalog> {
+    final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+    List<Book> _books = [];
+    bool _isLoading = true;
+    String _errorMessage = '';
 
-  @override
-  void initState() {
-    super.initState();
-    _fetchBooks();
-  }
-
-  Future<void> _fetchBooks() async {
-    try {
-      final httpService = HttpService();
-      final books = await httpService.fetchBooks();
-      setState(() {
-        _books = books;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() {
-        _errorMessage = 'Failed to load books. Error: $e';
-        _isLoading = false;
-      });
+    @override
+    void initState() {
+      super.initState();
+      _fetchBooks();
     }
-  }
+
+    Future<void> _fetchBooks() async {
+      try {
+        final httpService = HttpService();
+        final books = await httpService.fetchBooks();
+        setState(() {
+          _books = books;
+          _isLoading = false;
+        });
+      } catch (e) {
+        setState(() {
+          _errorMessage = 'Failed to load books. Error: $e';
+          _isLoading = false;
+        });
+      }
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +115,14 @@ class _BookKatalogState extends State<BookKatalog> {
                           itemBuilder: (context, index) {
                             final book = _books[index];
                             return InkWell(
-                              onTap: () {},
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                      builder: (context) =>
+                                          BookDetails(id: book.id)),
+                                );
+                              },
                               child: Container(
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(20),

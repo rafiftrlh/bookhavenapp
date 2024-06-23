@@ -1,14 +1,54 @@
+import 'package:bookhavenapp/models/notifications_model.dart';
+import 'package:bookhavenapp/providers/user_provider.dart';
 import 'package:bookhavenapp/screens/homepage.dart';
+import 'package:bookhavenapp/services/http_service.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart'; // Import provider package
 
-class Notifications extends StatelessWidget {
-  const Notifications({super.key});
+class Notifications extends StatefulWidget {
+  const Notifications({Key? key}) : super(key: key);
+
+  @override
+  State<Notifications> createState() => _NotificationsState();
+}
+
+class _NotificationsState extends State<Notifications> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<NotificationModel> _notifications = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchNotifications();
+  }
+
+  Future<void> _fetchNotifications() async {
+    try {
+      final httpService = HttpService();
+      final notifications = await httpService.fetchNotifications(1);
+      setState(() {
+        _notifications = notifications;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat notifications. Kesalahan: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
+    final userProvider = Provider.of<UserProvider>(context); // Ambil instance UserProvider dari context
+    final username = userProvider.user?.id ?? null; // Dapatkan id pengguna jika tersedia
+
     return Scaffold(
+      key: _scaffoldKey,
       appBar: AppBar(
         leading: IconButton(
           icon: const Icon(
@@ -19,8 +59,7 @@ class Notifications extends StatelessWidget {
             Navigator.of(context).pop();
             Navigator.push(
               context,
-              MaterialPageRoute(
-                  builder: (context) => HomePage()), 
+              MaterialPageRoute(builder: (context) => HomePage()), 
             );
           },
         ),
@@ -42,11 +81,11 @@ class Notifications extends StatelessWidget {
               decoration: InputDecoration(
                   prefixIcon: const Icon(
                     Icons.search,
-                    size: 30, // Increase the size of the search icon
+                    size: 30,
                   ),
                   hintText: 'Search Notifications',
                   hintStyle: const TextStyle(
-                    fontSize: 20, // Increase the font size of the hint text
+                    fontSize: 20,
                   ),
                   contentPadding: EdgeInsets.all(20.0),
                   fillColor: Colors.black12,

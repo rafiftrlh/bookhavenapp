@@ -83,7 +83,7 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BookDetails()),
+                              builder: (context) => BookDetails(id: 3)),
                         );
                       },
                           child: Column(
@@ -139,7 +139,7 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BookDetails()),
+                              builder: (context) => BookDetails(id: 1)),
                         );
                       },
                           child: Column(
@@ -195,7 +195,7 @@ class HomePage extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => BookDetails()),
+                              builder: (context) => BookDetails(id: 2)),
                         );
                       },
                           child: Column(

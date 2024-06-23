@@ -1,7 +1,11 @@
 import 'dart:convert';
 import 'package:bookhavenapp/models/author_model.dart';
+import 'package:bookhavenapp/models/book_detail_model.dart';
 import 'package:bookhavenapp/models/book_model.dart';
+import 'package:bookhavenapp/models/borrowing_model.dart';
 import 'package:bookhavenapp/models/category_model.dart';
+import 'package:bookhavenapp/models/notifications_model.dart';
+import 'package:bookhavenapp/models/rating_model.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
@@ -10,7 +14,7 @@ import 'package:bookhavenapp/screens/homepage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class HttpService {
-  var baseUrl = "http://localhost:8000";
+  static const String baseUrl = 'http://localhost:8000'; // Ganti dengan base URL API Anda
 
   Future<void> login({
     required BuildContext context,
@@ -94,6 +98,23 @@ class HttpService {
     }
   }
 
+  Future<List<BookDetail>> fetchBookDetail(int id) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/books/$id'));
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        final List<dynamic> bookDetailJson = data['books'];
+        return bookDetailJson.map((json) => BookDetail.fromJson(json)).toList();
+      } else {
+        throw Exception(
+            'Failed to load book details. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load book details. Error: $e');
+    }
+  }
+
   Future<List<CategoryModel>> fetchCategories() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/api/categories'));
@@ -113,7 +134,7 @@ class HttpService {
     }
   }
 
-   Future<List<Author>> fetchAuthors() async {
+  Future<List<Author>> fetchAuthors() async {
     try {
       final response = await http.get(Uri.parse('$baseUrl/api/authors'));
 
@@ -127,6 +148,51 @@ class HttpService {
       }
     } catch (e) {
       throw Exception('Failed to load authors. Error: $e');
+    }
+  }
+
+  Future<List<RatingBookModel>> fetchRatings() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/rating'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => RatingBookModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load ratings. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load ratings. Error: $e');
+    }
+  }
+
+  Future<List<NotificationModel>> fetchNotifications(int id) async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/notification/$id'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => NotificationModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load notifications. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load notifications. Error: $e');
+    }
+  }
+
+  Future<List<BorrowingModel>> fetchBorrowings() async {
+    try {
+      final response = await http.get(Uri.parse('$baseUrl/api/borrowings'));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = jsonDecode(response.body);
+        return data.map((json) => BorrowingModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load borrowings. Status code: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Failed to load borrowings. Error: $e');
     }
   }
 }

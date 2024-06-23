@@ -1,10 +1,46 @@
+import 'package:bookhavenapp/models/rating_model.dart';
 import 'package:bookhavenapp/screens/review.dart';
+import 'package:bookhavenapp/services/http_service.dart';
 import 'package:bookhavenapp/widgets/ratingindicator.dart';
 import 'package:bookhavenapp/widgets/reviewcard.dart';
 import 'package:flutter/material.dart';
 
-class Ratings extends StatelessWidget {
+class Ratings extends StatefulWidget {
   const Ratings({super.key});
+
+  @override
+  State<Ratings> createState() => _RatingsState();
+}
+
+class _RatingsState extends State<Ratings> {
+  final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
+  List<RatingBookModel> _ratings = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchRatings();
+  }
+
+  Future<void> _fetchRatings() async {
+    try {
+      final httpService = HttpService();
+      final ratings = await httpService.fetchRatings();
+      setState(() {
+        _ratings = ratings;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Gagal memuat rating. Kesalahan: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +50,7 @@ class Ratings extends StatelessWidget {
             icon: const Icon(Icons.arrow_back),
             onPressed: () {
               Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => BookDetails()));
+                  MaterialPageRoute(builder: (context) => BookDetails(id: 1)));
             },
           ),
           title: Text(

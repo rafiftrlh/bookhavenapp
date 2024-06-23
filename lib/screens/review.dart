@@ -1,16 +1,45 @@
+import 'package:bookhavenapp/models/book_detail_model.dart';
 import 'package:bookhavenapp/screens/borrowing.dart';
 import 'package:bookhavenapp/screens/homepage.dart';
 import 'package:bookhavenapp/screens/rating.dart';
+import 'package:bookhavenapp/services/http_service.dart';
 import 'package:flutter/material.dart';
 
 class BookDetails extends StatefulWidget {
-  const BookDetails({Key? key}) : super(key: key);
+  final int id;
+  const BookDetails({Key? key, required this.id}) : super(key: key);
 
   @override
   _BookDetailsState createState() => _BookDetailsState();
 }
 
 class _BookDetailsState extends State<BookDetails> {
+  final HttpService httpService = HttpService();
+  List<BookDetail> _bookdetail = [];
+  bool _isLoading = true;
+  String _errorMessage = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchBookDetails(widget.id);
+  }
+
+  Future<void> _fetchBookDetails(int id) async {
+    try {
+      final bookDetail = await httpService.fetchBookDetail(id);
+      setState(() {
+        _bookdetail = bookDetail;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'Failed to load book details. Error: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
   int _selectedRating = 0;
   final TextEditingController _reviewController = TextEditingController();
 
@@ -74,10 +103,11 @@ class _BookDetailsState extends State<BookDetails> {
                                         size: 40, color: Colors.black54),
                                     onPressed: () {
                                       Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                              builder: (context) =>
-                                                  HomePage()));
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => HomePage(),
+                                        ),
+                                      );
                                     },
                                   ),
                                 ],
